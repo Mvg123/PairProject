@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>장소 관리</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/gym.js" defer></script>
+    <script src="/js/message.js" defer></script>
+</head>
+<body>
+<!-- 상단 네비게이션 -->
+<nav class="navbar">
+    <div class="container">
+        <a class="navbar-brand" href="/">MSA 프로젝트</a>
+        <div>
+            <a class="nav-link" href="/customers" style="margin-right: 20px; color: white;">고객</a>
+            <a class="nav-link" href="/gym" style="color: #f1c40f;">체육관</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h1 style="margin-bottom: 1.5rem;">🏋️ 장소 관리 프로그램</h1>
+
+    <!-- 입력 폼 -->
+    <div class="card">
+        <h3>새 종목 등록</h3>
+        <div class="form-group">
+            <label for="name">위치</label>
+            <input type="text" id="name" class="form-control" placeholder="예: 헬스센터 3호관">
+        </div>
+        <div class="form-group">
+            <label for="item">종목</label>
+            <input type="text" id="item" class="form-control" placeholder="예: 헬스, 요가 등">
+        </div>
+        <button class="btn btn-primary" onclick="addGym()">추가</button>
+    </div>
+
+    <!-- 체육관 목록 -->
+    <div class="card">
+        <h3>체육관 목록</h3>
+        <table class="table" id="gym-table">
+            <thead>
+            <tr>
+                <th style="width: 10%;">ID</th>
+                <th style="width: 30%;">위치</th>
+                <th style="width: 30%;">종목</th>
+                <th style="width: 30%;">작업</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- 메시지 목록 -->
+    <div class="card">
+        <h3>받은 메시지</h3>
+        <table class="table" id="message-table">
+            <thead>
+            <tr>
+                <th style="width: 10%;">ID</th>
+                <th style="width: 60%;">내용</th>
+                <th style="width: 30%;">작업</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

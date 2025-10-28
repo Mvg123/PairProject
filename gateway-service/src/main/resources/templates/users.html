@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User CRUD MSA</title>
+    <style>
+        body { font-family:'Pretendard'; background:#f6f8fa; text-align:center; padding-top:40px;}
+        .card { display:inline-block; background:white; padding:30px; border-radius:10px;
+            box-shadow:0 3px 10px rgba(0,0,0,0.1); width:600px; position:relative;}
+        input { margin:5px; padding:8px; }
+        button { padding:8px 12px; margin:5px; background:#007bff; color:white; border:none; border-radius:4px; cursor:pointer;}
+        button:hover { background:#0056b3; }
+        table { margin-top:20px; border-collapse:collapse; width:100%; }
+        th,td { border:1px solid #ccc; padding:8px; }
+        th { background:#f0f0f0; }
+        #message { color:#555; font-size:14px; margin-top:10px; }
+        /* 화면 잠금 오버레이 */
+        #overlay {
+            position: absolute;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(255,255,255,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size:18px;
+            color:#333;
+            display: none; /* 기본 숨김 */
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>🐇 RabbitMQ CRUD (MSA)</h2>
+    <input id="name" placeholder="이름">
+    <input id="email" placeholder="이메일">
+    <button onclick="createUser()">추가</button>
+    <button onclick="refreshUsers()">새로 고침</button>
+    <hr>
+    <div id="message">데이터를 불러오려면 '새로 고침' 버튼을 눌러주세요.</div>
+    <table id="userTable">
+        <thead><tr><th>ID</th><th>이름</th><th>이메일</th><th>액션</th></tr></thead>
+        <tbody></tbody>
+    </table>
+    <div id="overlay">데이터 로딩 중... 잠시만 기다려주세요.</div>
+</div>
+
+<script>
+    async function loadUsers() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'flex'; // 화면 잠금
+        try {
+            const res = await fetch('/api/users');
+            if (!res.ok) {
+                console.error('Server error', res.status, await res.text());
+                overlay.style.display = 'none';
+                return;
+            }
+            let users = await res.json();
+            if (!Array.isArray(users)) users = [users];
+
+            const tbody = document.querySelector('#userTable tbody');
+            tbody.innerHTML = '';
+            if (users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4">사용자 데이터가 없습니다.</td></tr>`;
+            } else {
+                users.forEach(u => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${u.id}</td>
+                            <td>${u.name}</td>
+                            <td>${u.email}</td>
+                            <td>
+                                <button onclick="updateUser(${u.id})">수정</button>
+                                <button onclick="deleteUser(${u.id})">삭제</button>
+                            </td>
+                        </tr>`;
+                });
+            }
+        } catch (err) {
+            console.error('Error loading users', err);
+        } finally {
+            overlay.style.display = 'none'; // 화면 잠금 해제
+        }
+    }
+
+    async function refreshUsers() {
+        loadUsers();
+    }
+
+    async function createUser() {
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        if (!name || !email) {
+            alert('이름과 이메일을 입력해주세요.');
+            return;
+        }
+        await fetch('/api/users', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({name,email})
+        });
+        loadUsers();
+    }
+
+    async function updateUser(id) {
+        const name = prompt('새 이름:');
+        const email = prompt('새 이메일:');
+        if (!name || !email) return;
+        await fetch(`/api/users/${id}`, {
+            method:'PUT',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({name,email})
+        });
+        loadUsers();
+    }
+
+    async function deleteUser(id) {
+        if (!confirm('정말 삭제하시겠습니까?')) return;
+        await fetch(`/api/users/${id}`, {method:'DELETE'});
+        loadUsers();
+    }
+</script>
+</body>
+</html>
